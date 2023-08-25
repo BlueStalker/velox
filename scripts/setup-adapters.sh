@@ -79,20 +79,20 @@ function install_libhdfs3 {
 cd "${DEPENDENCY_DIR}" || exit
 # aws-sdk-cpp missing dependencies
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+#if [[ "$OSTYPE" == "linux-gnu"* ]]; then
    # /etc/os-release is a standard way to query various distribution
    # information and is available everywhere
-   LINUX_DISTRIBUTION=$(. /etc/os-release && echo ${ID})
-   if [[ "$LINUX_DISTRIBUTION" == "ubuntu" ]]; then
-      apt install -y --no-install-recommends libxml2-dev libgsasl7-dev uuid-dev
+#   LINUX_DISTRIBUTION=$(. /etc/os-release && echo ${ID})
+#   if [[ "$LINUX_DISTRIBUTION" == "ubuntu" ]]; then
+#      apt install -y --no-install-recommends libxml2-dev libgsasl7-dev uuid-dev
       # Dependencies of GCS, probably a workaround until the docker image is rebuilt
-      apt install -y --no-install-recommends libc-ares-dev libcurl4-openssl-dev
-   else # Assume Fedora/CentOS
-      yum -y install libxml2-devel libgsasl-devel libuuid-devel
+#      apt install -y --no-install-recommends libc-ares-dev libcurl4-openssl-dev
+#   else # Assume Fedora/CentOS
+#      yum -y install libxml2-devel libgsasl-devel libuuid-devel
       # Dependencies of GCS, probably a workaround until the docker image is rebuilt
-      yum -y install curl-devel c-ares-devel
-   fi
-fi
+#      yum -y install curl-devel c-ares-devel
+#   fi
+#fi
 
 if [[ "$OSTYPE" == darwin* ]]; then
    brew install libxml2 gsasl

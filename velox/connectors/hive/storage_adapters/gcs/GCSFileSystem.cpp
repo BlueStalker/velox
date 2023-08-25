@@ -22,6 +22,7 @@
 
 #include <fmt/format.h>
 #include <glog/logging.h>
+#include <fstream>
 #include <memory>
 #include <stdexcept>
 
@@ -49,12 +50,13 @@ inline void checkGCSStatus(
   if (!outcome.ok()) {
     auto error = outcome.error_info();
     VELOX_FAIL(
-        "{} due to: Path:'{}', SDK Error Type:{}, GCS Status Code:{},  Message:'{}'",
+        "{} due to: Path:'{}', SDK Error Type:{}, GCS Status Code:{},  Message:'{}', Details:{} ",
         errorMsgPrefix,
         gcsURI(bucket, key),
         error.domain(),
-        getErrorStringFromGCSError(outcome.code()),
-        outcome.message());
+        outcome.code(),
+        outcome.message(),
+        outcome.error_info().reason());
   }
 }
 
@@ -270,7 +272,10 @@ class GCSFileSystem::Impl {
 
     auto cred = HiveConfig::gcsCredentials(config_);
     if (!cred.empty()) {
-      auto credentials = gc::MakeServiceAccountCredentials(cred);
+      auto is = std::ifstream(cred);
+      is.exceptions(std::ios::badbit);
+      auto json_string = std::string(std::istreambuf_iterator<char>(is.rdbuf()), {});
+      auto credentials = gc::MakeServiceAccountCredentials(json_string);
       options.set<gc::UnifiedCredentialsOption>(credentials);
     } else {
       LOG(WARNING) << "Config::gcsCredentials is empty";
